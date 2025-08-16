@@ -1,0 +1,60 @@
+extends ../../layouts/default.pug
+include ../../mixins/alert.pug
+
+block main
+  .container-fluid
+    .row
+      .col-12
+        .card
+          .card-header
+            h3.card-title
+              i.fas.fa-headset.me-2
+              | Hỗ trợ khách hàng
+          
+          .card-body
+            if supportRooms && supportRooms.length > 0
+              .table-responsive
+                table.table.table-hover
+                  thead
+                    tr
+                      th Khách hàng
+                      th Tin nhắn cuối
+                      th Thời gian
+                      th Hành động
+                  tbody
+                    each room in supportRooms
+                      tr
+                        td
+                          if room.usersInfo && room.usersInfo.length > 0
+                            each user in room.usersInfo
+                              .d-flex.align-items-center
+                                if user.avatar
+                                  img.rounded-circle.me-2(src=user.avatar width="32" height="32")
+                                else
+                                  .bg-secondary.rounded-circle.me-2.d-flex.align-items-center.justify-content-center(style="width: 32px; height: 32px;")
+                                    i.fas.fa-user.text-white
+                                span= user.fullName
+                        td
+                          if room.lastMessage
+                            if room.lastMessage.content
+                              span.text-muted= room.lastMessage.content
+                            else if room.lastMessage.images && room.lastMessage.images.length > 0
+                              span.text-muted
+                                i.fas.fa-image.me-1
+                                | Hình ảnh
+                          else
+                            span.text-muted Chưa có tin nhắn
+                        td
+                          if room.lastMessage
+                            span.text-muted= moment(room.lastMessage.createdAt).format("DD/MM/YYYY HH:mm")
+                          else
+                            span.text-muted -
+                        td
+                          a.btn.btn-primary.btn-sm(href=`/admin/chat/${room._id}`)
+                            i.fas.fa-comments.me-1
+                            | Xem chat
+            else
+              .text-center.py-5
+                i.fas.fa-inbox.fa-3x.text-muted.mb-3
+                h5.text-muted Chưa có cuộc trò chuyện hỗ trợ nào
+                p.text-muted Khách hàng sẽ xuất hiện ở đây khi họ bắt đầu chat hỗ trợ 

@@ -1,0 +1,22 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+  .container.my-3
+    .row
+      .col-12
+        +box-head("Hỗ trợ khách hàng")
+
+    .row
+      .col-12
+        .alert.alert-info
+          h4.alert-heading Chuyển hướng...
+          p Đang chuyển đến phòng chat hỗ trợ khách hàng.
+          hr
+          p.mb-0
+            a.alert-link(href="/rooms-chat") Nhấn vào đây nếu không tự động chuyển hướng
+
+    script.
+      setTimeout(function() {
+        window.location.href = '/rooms-chat';
+      }, 2000);

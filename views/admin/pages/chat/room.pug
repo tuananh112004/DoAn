@@ -1,0 +1,156 @@
+extends ../../layouts/default.pug
+include ../../mixins/alert.pug
+
+block main
+  .container-fluid
+    .row
+      .col-12
+        .card
+          .card-header.d-flex.justify-content-between.align-items-center
+            .d-flex.align-items-center
+              a.btn.btn-outline-secondary.me-3(href="/admin/chat/support")
+                i.fas.fa-arrow-left
+              h3.card-title.mb-0
+                i.fas.fa-headset.me-2
+                | Chat hỗ trợ
+            .d-flex.align-items-center
+              if users && users.length > 0
+                each user in users
+                  .d-flex.align-items-center.me-3
+                    if user.avatar
+                      img.rounded-circle.me-2(src=user.avatar width="32" height="32")
+                    else
+                      .bg-secondary.rounded-circle.me-2.d-flex.align-items-center.justify-content-center(style="width: 32px; height: 32px;")
+                        i.fas.fa-user.text-white
+                    span= user.fullName
+          
+          .card-body.p-0
+            .chat(style="height: 600px;")
+              .inner-head.p-3.border-bottom
+                .d-flex.align-items-center
+                  .inner-avatar.me-3
+                    i.fas.fa-headset.fa-2x.text-primary
+                  .inner-name
+                    h5.mb-0 Hỗ trợ khách hàng
+                    if users && users.length > 0
+                      small.text-muted
+                        each user in users
+                          span= user.fullName
+                          if !user.isLast
+                            span , 
+              
+              .inner-body.p-3(style="height: 400px; overflow-y: auto;")
+                if chats && chats.length > 0
+                  each chat in chats
+                    - var isAdminMsg = (chat.user_id == user.id)
+                    div(class=isAdminMsg ? "inner-outgoing" : "inner-incoming")
+                      if !isAdminMsg
+                        if chat.infoUser && chat.infoUser.fullName
+                          .inner-name= chat.infoUser.fullName
+                        else
+                          .inner-name Người dùng
+                      if chat.content
+                        .inner-content= chat.content
+                      if chat.images && chat.images.length > 0
+                        .inner-images
+                          each image in chat.images
+                            img(src=image)
+                      .inner-time= moment(chat.createdAt).format("HH:mm")
+                else
+                  .text-center.text-muted.py-5
+                    i.fas.fa-comments.fa-2x.mb-3
+                    p Chưa có tin nhắn nào
+              
+              .inner-foot.p-3.border-top
+                form.inner-form
+                  .input-group
+                    input.form-control(
+                      type="text"
+                      placeholder="Nhập tin nhắn trả lời..."
+                      name="content"
+                      required
+                    )
+                    button.btn.btn-primary(type="submit")
+                      i.fas.fa-paper-plane
+
+block script
+  script.
+    // Khởi tạo socket
+    const socket = io();
+    const roomId = '#{room._id}';
+    const accountId = '#{user.id}';
+    const accountName = '#{user.fullName}';
+    
+    // Join room
+    socket.emit('JOIN_ROOM', roomId);
+    
+    // Gửi thông tin admin
+    socket.emit('SET_ADMIN_INFO', {
+      accountId: accountId,
+      accountName: accountName
+    });
+    
+    // Xử lý gửi tin nhắn
+    const chatForm = document.querySelector('.inner-form');
+    const messageInput = chatForm.querySelector('input[name="content"]');
+    
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const content = messageInput.value.trim();
+      
+      if (content) {
+        socket.emit('ADMIN_SEND_MESSAGE', {
+          content: content,
+          roomId: roomId
+        });
+        messageInput.value = '';
+      }
+    });
+    
+    // Nhận tin nhắn từ server
+    socket.on('SERVER_RETURN_MESSAGE', (data) => {
+      const messagesContainer = document.querySelector('.inner-body');
+      const isAdmin = data.accountId === accountId;
+      
+      const messageDiv = document.createElement('div');
+      messageDiv.className = isAdmin ? 'inner-outgoing' : 'inner-incoming';
+      
+      if (!isAdmin) {
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'inner-name';
+        nameDiv.textContent = data.fullName;
+        messageDiv.appendChild(nameDiv);
+      }
+      
+      if (data.content) {
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'inner-content';
+        contentDiv.textContent = data.content;
+        messageDiv.appendChild(contentDiv);
+      }
+      
+      if (data.images && data.images.length > 0) {
+        const imagesDiv = document.createElement('div');
+        imagesDiv.className = 'inner-images';
+        data.images.forEach(image => {
+          const img = document.createElement('img');
+          img.src = image;
+          imagesDiv.appendChild(img);
+        });
+        messageDiv.appendChild(imagesDiv);
+      }
+      
+      const timeDiv = document.createElement('div');
+      timeDiv.className = 'inner-time';
+      timeDiv.textContent = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+      messageDiv.appendChild(timeDiv);
+      
+      messagesContainer.appendChild(messageDiv);
+      
+      // Scroll xuống cuối
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+    
+    // Scroll xuống cuối khi load trang
+    const messagesContainer = document.querySelector('.inner-body');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight; 

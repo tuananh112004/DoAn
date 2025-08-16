@@ -1,0 +1,22 @@
+extends ../../layouts/default.pug
+
+block main
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-6.text-center
+        .error-page
+          h1.display-1.text-danger 403
+          h2.mb-4 Không có quyền truy cập
+          p.text-muted.mb-4= message || 'Bạn không có quyền truy cập chức năng này'
+          
+          .d-grid.gap-2.d-md-block
+            a.btn.btn-primary.me-md-2(href="/admin/dashboard") 
+              i.fas.fa-home.me-2
+              | Về trang chủ
+            a.btn.btn-outline-secondary(href="javascript:history.back()")
+              i.fas.fa-arrow-left.me-2
+              | Quay lại
+          
+          .mt-4
+            small.text-muted
+              | Nếu bạn cho rằng đây là lỗi, vui lòng liên hệ quản trị viên

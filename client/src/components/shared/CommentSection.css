@@ -1,0 +1,251 @@
+/* Comment Section Styles */
+.comment-section {
+  margin-top: 3rem;
+}
+
+.comment-form {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.comment-item {
+  transition: all 0.2s ease;
+}
+
+.comment-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.comment-actions {
+  border-top: 1px solid #e9ecef;
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.reply-item {
+  border-left: 3px solid #007bff;
+  background-color: #f8f9fa;
+}
+
+.reply-item .card {
+  border: none;
+  background-color: transparent;
+}
+
+.edit-form {
+  background-color: #e3f2fd;
+  border: 1px solid #2196f3;
+}
+
+.edit-form .card-header {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+/* Rating stars */
+.rating {
+  font-size: 1.1rem;
+}
+
+.rating.small {
+  font-size: 0.9rem;
+}
+
+/* User avatar */
+.user-avatar {
+  border: 2px solid #e9ecef;
+}
+
+.user-avatar:hover {
+  border-color: #007bff;
+}
+
+/* Comment content */
+.comment-content p {
+  line-height: 1.6;
+  color: #495057;
+}
+
+.reply-content p {
+  line-height: 1.5;
+  color: #6c757d;
+}
+
+/* Status badges */
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Loading states */
+.comment-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+}
+
+/* Empty state */
+.comments-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6c757d;
+}
+
+.comments-empty p {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Pagination */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .comment-form {
+    padding: 1rem;
+  }
+  
+  .comment-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .comment-actions .btn {
+    width: 100%;
+  }
+  
+  .reply-item {
+    margin-left: 1rem !important;
+  }
+}
+
+/* Animation for new comments */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.comment-item.new {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Success/Error alerts */
+.alert {
+  border-radius: 0.5rem;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-left: 4px solid #dc3545;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border-left: 4px solid #ffc107;
+}
+
+/* Moderation Status Styles */
+.moderation-status {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.moderation-status.approved {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.moderation-status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.moderation-status.violation {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Violation Type Badge */
+.violation-type {
+  background-color: #6c757d;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+/* Moderation Source */
+.moderation-source {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Form Help Text */
+.form-text {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+/* Moderation Alert Enhancements */
+.alert .fas {
+  font-size: 1.1em;
+}
+
+.alert code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.125rem;
+  font-size: 0.875em;
+}
+
+/* Small Alert Variants */
+.alert.small {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.alert.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.alert.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}

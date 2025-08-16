@@ -1,0 +1,33 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+  .container.my-3
+    .row
+      .col-12
+        +box-head("Hỗ trợ khách hàng")
+
+    .row
+      .col-12
+        .card
+          .card-body
+            h5.card-title #{supportRoom.title}
+            p.card-text Phòng chat hỗ trợ khách hàng
+            .admin-list.mb-3
+              h6 Danh sách nhân viên hỗ trợ:
+              .row
+                each account in accounts
+                  .col-md-3.mb-2
+                    .d-flex.align-items-center
+                      img.rounded-circle.mr-2(
+                        src=account.avatar || "https://robohash.org/default.png"
+                        alt=account.fullName
+                        style="width: 40px; height: 40px;"
+                      )
+                      span #{account.fullName}
+            
+            a.btn.btn-primary(
+              href=`/chat/${supportRoom.id}`
+            ) 
+              i.fas.fa-comments.mr-2
+              | Bắt đầu chat

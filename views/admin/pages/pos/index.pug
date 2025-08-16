@@ -1,0 +1,50 @@
+//- extends ../../layouts/default.pug
+
+//- block main
+//-   h1(class="mb-4") Bán hàng bằng mã vạch
+//-   .row
+//-     .col-md-6
+//-       video#videoPreview(autoplay playsinline style="width:100%;max-height:320px;background:#000")
+//-       .mt-2
+//-         button#btnStartScan.btn.btn-primary Bắt đầu quét
+//-         button#btnStopScan.btn.btn-secondary.ml-2 Dừng
+//-     .col-md-6
+//-       form#orderForm
+//-         div(class="form-group")
+//-           label Mã vạch
+//-           input#barcodeInput.form-control(type="text" placeholder="Nhập hoặc quét mã vạch")
+//-         div#productInfo.mt-3
+//-         hr
+//-         div#cartList
+//-         div.mt-3
+//-           button#btnCreateOrder.btn.btn-success(type="button") Tạo hóa đơn
+
+//-   script(src="https://unpkg.com/@zxing/library@0.21.2/umd/index.min.js")
+//-   script(src="/admin/js/pos.js")
+
+
+extends ../../layouts/default.pug
+
+block main
+  h1.mb-4 Bán hàng bằng mã vạch
+  .row
+    .col-md-6
+      video#videoPreview(autoplay playsinline style="width:100%;max-height:320px;background:#000")
+      .mt-2
+        button#btnStartScan.btn.btn-primary Bắt đầu quét
+        button#btnStopScan.btn.btn-secondary.ml-2 Dừng
+    .col-md-6
+      form#orderForm
+        .form-group
+          label Mã vạch
+          input#barcodeInput.form-control(type="text" placeholder="Nhập hoặc quét mã vạch")
+        #productInfo.mt-3
+        hr
+        #cartList
+        .mt-3
+          button#btnCreateOrder.btn.btn-success(type="button") Tạo hóa đơn
+
+  // ZXing library
+  script(src="https://unpkg.com/@zxing/library@0.21.2/umd/index.min.js")
+  // POS JS
+  script(src="/admin/js/pos.js")

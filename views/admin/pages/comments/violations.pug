@@ -1,0 +1,245 @@
+extends ../../layouts/default
+
+block main
+  //- Kiểm tra quyền truy cập trang
+  if !role || !role.permission || !role.permission.includes("comments_moderate")
+    .alert.alert-danger
+      h4 Không có quyền truy cập
+      p Bạn không có quyền xem trang này. Vui lòng liên hệ quản trị viên.
+      a.btn.btn-primary(href="/admin/dashboard") Về trang chủ
+  else
+    h1.mb-4 Danh sách comment vi phạm
+
+    .card
+      .card-header
+        .d-flex.justify-content-between.align-items-center
+          h5.mb-0 Comment vi phạm
+          .btn-group
+            a.btn.btn-outline-secondary(href="/admin/dashboard") Quay lại
+
+      .card-body
+        // Table
+        .table-responsive
+          table.table.table-striped
+            thead
+              tr
+                th Người dùng
+                th Sản phẩm
+                th Nội dung
+                th Rating
+                th Trạng thái
+                th Loại vi phạm
+                th Điểm số AI
+                th Ngày kiểm duyệt
+                th Thao tác
+            tbody
+              each comment in comments
+                tr
+                  td
+                    if comment.user_id
+                      strong= comment.user_id.fullName
+                      br
+                      small.text-muted= comment.user_id.email
+                    else
+                      span.text-muted Đã xóa
+                  td
+                    if comment.product_id
+                      = comment.product_id.title
+                    else
+                      span.text-muted Đã xóa
+                  td
+                    .comment-content
+                      p.mb-1= comment.content
+                      .badge.bg-danger.mt-1
+                        | Vi phạm: #{comment.aiModeration.violationType}
+                  td
+                    .rating
+                      - for (let i = 1; i <= 5; i++)
+                        if i <= comment.rating
+                          i.fas.fa-star.text-warning
+                        else
+                          i.far.fa-star.text-warning
+                  td
+                    if comment.status === "active"
+                      span.badge.bg-success Active
+                    else
+                      span.badge.bg-danger Inactive
+                  td
+                    span.badge.bg-danger= comment.aiModeration.violationType
+                  td
+                    if comment.aiModeration.scores
+                      - const scores = comment.aiModeration.scores
+                      - const maxScore = Math.max(...Object.values(scores))
+                      - const maxType = Object.keys(scores).find(key => scores[key] === maxScore)
+                      small
+                        | #{maxType}: #{(maxScore * 100).toFixed(1)}%
+                  td
+                    if comment.aiModeration.moderatedAt
+                      = new Date(comment.aiModeration.moderatedAt).toLocaleDateString('vi-VN')
+                    else
+                      span.text-muted -
+                  td
+                    .btn-group.btn-group-sm
+                      //- Nút duyệt comment (cần quyền comments_moderate)
+                      if comment.status === "inactive" && role.permission.includes("comments_moderate")
+                        button.btn.btn-success.btn-approve(
+                          data-id=comment._id
+                          title="Duyệt comment"
+                        )
+                          i.fas.fa-check
+                      //- Nút từ chối comment (cần quyền comments_moderate)
+                      else if comment.status === "active" && role.permission.includes("comments_moderate")
+                        button.btn.btn-warning.btn-reject(
+                          data-id=comment._id
+                          title="Từ chối comment"
+                        )
+                          i.fas.fa-times
+                      
+                      //- Nút kiểm duyệt lại (cần quyền comments_remoderate)
+                      if role.permission.includes("comments_remoderate")
+                        button.btn.btn-info.btn-remoderate(
+                          data-id=comment._id
+                          title="Kiểm duyệt lại"
+                        )
+                          i.fas.fa-sync
+                      
+                      //- Nút xóa comment (cần quyền comments_delete)
+                      if role.permission.includes("comments_delete")
+                        button.btn.btn-danger.btn-delete(
+                          data-id=comment._id
+                          title="Xóa comment"
+                        )
+                          i.fas.fa-trash
+
+        // Pagination
+        if pagination.total > 1
+          nav
+            ul.pagination.justify-content-center
+              if pagination.current > 1
+                li.page-item
+                  a.page-link(href=`/admin/comments/violations?page=${pagination.current - 1}`) Trước
+              
+              - for (let i = 1; i <= pagination.total; i++)
+                li.page-item(class=i === pagination.current ? 'active' : '')
+                  a.page-link(href=`/admin/comments/violations?page=${i}`)= i
+              
+              if pagination.current < pagination.total
+                li.page-item
+                  a.page-link(href=`/admin/comments/violations?page=${pagination.current + 1}`) Sau
+
+block script
+  script.
+    $(document).ready(function() {
+      // Kiểm tra quyền trước khi thực hiện các thao tác
+      const hasModeratePermission = #{role && role.permission && role.permission.includes("comments_moderate")};
+      const hasRemoderatePermission = #{role && role.permission && role.permission.includes("comments_remoderate")};
+      const hasDeletePermission = #{role && role.permission && role.permission.includes("comments_delete")};
+
+      // Duyệt comment
+      $('.btn-approve').click(function() {
+        if (!hasModeratePermission) {
+          alert('Bạn không có quyền duyệt comment!');
+          return;
+        }
+        
+        const commentId = $(this).data('id');
+        if (confirm('Bạn có chắc muốn duyệt comment này?')) {
+          $.ajax({
+            url: `/admin/comments/${commentId}/approve`,
+            method: 'PUT',
+            success: function(response) {
+              if (response.success) {
+                alert('Duyệt comment thành công!');
+                location.reload();
+              } else {
+                alert('Có lỗi xảy ra: ' + response.message);
+              }
+            },
+            error: function() {
+              alert('Có lỗi xảy ra khi duyệt comment');
+            }
+          });
+        }
+      });
+
+      // Từ chối comment
+      $('.btn-reject').click(function() {
+        if (!hasModeratePermission) {
+          alert('Bạn không có quyền từ chối comment!');
+          return;
+        }
+        
+        const commentId = $(this).data('id');
+        if (confirm('Bạn có chắc muốn từ chối comment này?')) {
+          $.ajax({
+            url: `/admin/comments/${commentId}/reject`,
+            method: 'PUT',
+            success: function(response) {
+              if (response.success) {
+                alert('Từ chối comment thành công!');
+                location.reload();
+              } else {
+                alert('Có lỗi xảy ra: ' + response.message);
+              }
+            },
+            error: function() {
+              alert('Có lỗi xảy ra khi từ chối comment');
+            }
+          });
+        }
+      });
+
+      // Kiểm duyệt lại comment
+      $('.btn-remoderate').click(function() {
+        if (!hasRemoderatePermission) {
+          alert('Bạn không có quyền kiểm duyệt lại comment!');
+          return;
+        }
+        
+        const commentId = $(this).data('id');
+        if (confirm('Bạn có chắc muốn kiểm duyệt lại comment này?')) {
+          $.ajax({
+            url: `/admin/comments/${commentId}/remoderate`,
+            method: 'POST',
+            success: function(response) {
+              if (response.success) {
+                alert('Kiểm duyệt lại comment thành công!');
+                location.reload();
+              } else {
+                alert('Có lỗi xảy ra: ' + response.message);
+              }
+            },
+            error: function() {
+              alert('Có lỗi xảy ra khi kiểm duyệt lại comment');
+            }
+          });
+        }
+      });
+
+      // Xóa comment
+      $('.btn-delete').click(function() {
+        if (!hasDeletePermission) {
+          alert('Bạn không có quyền xóa comment!');
+          return;
+        }
+        
+        const commentId = $(this).data('id');
+        if (confirm('Bạn có chắc muốn xóa comment này?')) {
+          $.ajax({
+            url: `/admin/comments/${commentId}/delete-permanent`,
+            method: 'DELETE',
+            success: function(response) {
+              if (response.success) {
+                alert('Xóa comment thành công!');
+                location.reload();
+              } else {
+                alert('Có lỗi xảy ra: ' + response.message);
+              }
+            },
+            error: function() {
+              alert('Có lỗi xảy ra khi xóa comment');
+            }
+          });
+        }
+      });
+    }); 

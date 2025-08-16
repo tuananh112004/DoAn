@@ -1,0 +1,56 @@
+extends ../../layouts/default.pug
+include ../../mixins/box-head.pug
+
+block main
+  .container.my-3
+    include ../../partials/list-btn-users
+
+    .row
+      .col-12
+        +box-head("Chat hỗ trợ khách hàng")
+
+    .row
+      .col-12
+        .chat(my-id=user.id my-name=user.fullName)
+          .inner-head
+            .inner-avatar 
+              i.fas.fa-headset
+            .inner-name Hỗ trợ khách hàng
+
+          .inner-body
+            each chat in chats
+              div(class=(chat.infoUser.id == user.id ? "inner-outgoing" :"inner-incoming"))
+                if(chat.infoUser.id != user.id)
+                  .inner-name 
+                    | #{chat.infoUser.fullName}
+                    if chat.infoUser.role
+                      span.badge.badge-info.ml-1 Admin
+                if chat.content
+                  .inner-content #{chat.content}
+                if chat.images
+                  .inner-images
+                    each image in chat.images
+                      img(src=image)
+
+            div.inner-list-typing
+
+          .inner-preview-images
+            div.custom-file-container(data-upload-id="upload-image")
+
+          .inner-foot
+            form(class="inner-form", action="")
+              input(type="text", placeholder="Nhập tin nhắn hỗ trợ...", name="content")
+              label(for="file-upload-with-preview-upload-image", class="btn btn-light mx-2 mb-0")
+                i.fa-regular.fa-image
+              span.button-icon.btn.btn-light.mx-2
+                i.fa-regular.fa-face-smile
+              button(type="submit", class="btn btn-primary")
+                i.fa-solid.fa-paper-plane
+
+  div.tooltip(role="tooltip")
+    emoji-picker(class="light")
+
+  block script 
+    script(src="/js/chat.js")
+  
+  

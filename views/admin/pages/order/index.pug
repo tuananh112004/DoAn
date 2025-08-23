@@ -1,0 +1,31 @@
+extends ../../layouts/default.pug
+
+block main
+  h1 Quản lý đơn hàng
+  if orders.length
+    table.table.table-bordered
+      thead
+        tr
+          th Mã đơn
+          th Khách hàng
+          th Tổng tiền
+          th Trạng thái
+          th Ngày tạo
+          th Hành động
+      tbody
+        each order in orders
+          tr
+            td= order._id
+            td= (order.userInfo && order.userInfo.name) ? order.userInfo.name : 'Ẩn'
+            td= order.totalAmount.toLocaleString()
+            td= order.status
+            td= order.createdAt ? order.createdAt.toLocaleString() : ''
+            td
+              a.btn.btn-info(href=`/admin/order/${order._id}` style="margin-right:8px;") Xem chi tiết
+              if order.status === 'vnpay_pending' || order.status === 'cod_pending'
+                form(action=`/admin/order/${order._id}/confirm`,method="post" style="display:inline;")
+                  button.btn.btn-success(type="submit") Xác nhận thanh toán
+              else
+                span Đã thanh toán
+  else
+    p Không có đơn hàng nào.

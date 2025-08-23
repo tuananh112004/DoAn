@@ -1,0 +1,170 @@
+extends ../../layouts/default.pug
+
+
+block main 
+    //- Form chọn ngày, tháng, năm để truy vấn doanh thu
+    form#statisticForm(method="get", action="")
+      .row.mb-3
+        .col-md-4
+          label(for="date") Chọn ngày:
+          input#date.form-control(type="date", name="date", value=(query.date || ''))
+        .col-md-4
+          label(for="month") Chọn tháng:
+          input#month.form-control(type="month", name="month", value=(query.month || ''))
+        .col-md-4
+          label(for="year") Chọn năm:
+          input#year.form-control(type="number", name="year", min="2000", max="2100", value=(query.year || ''))
+      button.btn.btn-primary.mt-2(type="submit") Xem thống kê
+    h1 Thống kê doanh thu
+    .row.mt-4
+      if statistic && statistic.revenue
+        .col-12
+          .card.mb-4
+            .card-header Tổng doanh thu
+            .card-body
+              h3.text-success #{statistic.revenue.total.toLocaleString('vi-VN')}đ
+              
+
+        
+    //- Biểu đồ doanh thu chọn loại thống kê
+    if statistic && statistic.revenue
+      .card.mb-4
+        .card-header Biểu đồ doanh thu
+        .card-body
+          if (statistic.revenue.byDay.length || statistic.revenue.byMonth.length || statistic.revenue.byYear.length)
+            canvas#revenueChart(width="400" height="180" style="margin-top:20px;")
+            script(src="https://cdn.jsdelivr.net/npm/chart.js")
+            script.
+              // Lấy loại thống kê từ query
+              const query = !{JSON.stringify(query || {})};
+              let type = 'day';
+              if(query.date) type = 'day';
+              else if(query.month) type = 'month';
+              else if(query.year) type = 'year';
+              // Nếu chọn tháng, vẽ theo từng ngày trong tháng
+              let chartData = [];
+              let chartLabels = [];
+              let chartTitle = '';
+              if(type === 'month') {
+                chartData = !{JSON.stringify(statistic.revenue.byDay.map(item => item.amount))};
+                chartLabels = !{JSON.stringify(statistic.revenue.byDay.map(item => item.date))};
+                chartTitle = 'Doanh thu từng ngày trong tháng';
+              } else if(type === 'day') {
+                chartData = !{JSON.stringify(statistic.revenue.byDay.map(item => item.amount))};
+                chartLabels = !{JSON.stringify(statistic.revenue.byDay.map(item => item.date))};
+                chartTitle = 'Doanh thu theo ngày';
+              } else if(type === 'year') {
+                chartData = !{JSON.stringify(statistic.revenue.byMonth.map(item => item.amount))};
+                chartLabels = !{JSON.stringify(statistic.revenue.byMonth.map(item => item.month))};
+                chartTitle = 'Doanh thu từng tháng trong năm';
+              }
+              const ctx = document.getElementById('revenueChart').getContext('2d');
+              let chart;
+              function renderChart() {
+                if(chart) chart.destroy();
+                chart = new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                    labels: chartLabels,
+                    datasets: [{
+                      label: 'Doanh thu (VNĐ)',
+                      data: chartData,
+                      borderColor: 'rgba(75, 192, 192, 1)',
+                      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                      fill: true,
+                      tension: 0.1
+                    }]
+                  },
+                  options: {
+                    responsive: true,
+                    plugins: {
+                      legend: { display: true },
+                      title: { display: true, text: chartTitle }
+                    },
+                    scales: {
+                      y: { beginAtZero: true }
+                    }
+                  }
+                });
+              }
+              renderChart();
+          else
+            .alert.alert-warning Không có dữ liệu để vẽ biểu đồ doanh thu.
+    //- Thống kê số lượng sản phẩm từng danh mục bằng biểu đồ cột
+    if statistic && statistic.categoryProductStats
+      .row.mb-4(style="display:flex;gap:32px;justify-content:center;align-items:flex-start;")
+        .card(style="width:420px;")
+          .card-header Biểu đồ cột: Số lượng sản phẩm từng danh mục
+          .card-body
+            canvas#categoryBarChart(width="400" height="180" style="margin-top:20px;")
+            script(src="https://cdn.jsdelivr.net/npm/chart.js")
+            script.
+              const barLabels = !{JSON.stringify(statistic.categoryProductStats.map(item => item.category))};
+              const barData = !{JSON.stringify(statistic.categoryProductStats.map(item => item.count))};
+              const barCtx = document.getElementById('categoryBarChart').getContext('2d');
+              new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                  labels: barLabels,
+                  datasets: [{
+                    label: 'Số lượng sản phẩm',
+                    data: barData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Số lượng sản phẩm từng danh mục' }
+                  },
+                  scales: {
+                    y: { beginAtZero: true }
+                  }
+                }
+              });
+        .card(style="width:320px;")
+          .card-header Biểu đồ tròn: Tỷ lệ sản phẩm từng danh mục
+          .card-body(style="display:flex;justify-content:center;align-items:center;")
+            canvas#categoryPieChart(width="120" height="120" style="margin-top:10px;")
+            script(src="https://cdn.jsdelivr.net/npm/chart.js")
+            script.
+              const pieLabels = !{JSON.stringify(statistic.categoryProductStats.map(item => item.category))};
+              const pieData = !{JSON.stringify(statistic.categoryProductStats.map(item => item.count))};
+              const pieCtx = document.getElementById('categoryPieChart').getContext('2d');
+              new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                  labels: pieLabels,
+                  datasets: [{
+                    label: 'Tỷ lệ sản phẩm',
+                    data: pieData,
+                    backgroundColor: [
+                      'rgba(255, 99, 132, 0.5)',
+                      'rgba(54, 162, 235, 0.5)',
+                      'rgba(255, 206, 86, 0.5)',
+                      'rgba(75, 192, 192, 0.5)',
+                      'rgba(153, 102, 255, 0.5)',
+                      'rgba(255, 159, 64, 0.5)'
+                    ],
+                    borderColor: [
+                      'rgba(255, 99, 132, 1)',
+                      'rgba(54, 162, 235, 1)',
+                      'rgba(255, 206, 86, 1)',
+                      'rgba(75, 192, 192, 1)',
+                      'rgba(153, 102, 255, 1)',
+                      'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  plugins: {
+                    legend: { display: true },
+                    title: { display: true, text: 'Tỷ lệ sản phẩm từng danh mục' }
+                  }
+                }
+              });        

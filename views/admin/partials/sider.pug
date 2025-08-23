@@ -1,0 +1,55 @@
+.sider
+  .inner-menu
+    ul 
+      li
+        a(href=`/${prefixAdmin}/dashboard`) Tổng quan
+      
+      //- Sản phẩm (cần quyền products_view)
+      if(role && role.permission && role.permission.includes("products_view"))  
+        li
+          a(href=`/${prefixAdmin}/products`) Sản phẩm
+      
+      //- Danh mục sản phẩm (cần quyền products-category_view)
+      if(role && role.permission && role.permission.includes("products-category_view"))  
+        li
+          a(href=`/${prefixAdmin}/products-category`) Danh mục sản phẩm
+      
+      //- Nhóm quyền (cần quyền roles_view)
+      if(role && role.permission && role.permission.includes("roles_view"))  
+        li
+          a(href=`/${prefixAdmin}/roles`) Nhóm quyền
+      
+      //- Phân quyền (cần quyền roles_permissions)
+      if(role && role.permission && role.permission.includes("roles_permissions"))  
+        li
+          a(href=`/${prefixAdmin}/roles/permission`) Phân quyền
+      
+      //- Tài khoản (cần quyền accounts_view)
+      if(role && role.permission && role.permission.includes("accounts_view"))  
+        li
+          a(href=`/${prefixAdmin}/accounts`) Tài khoản
+      
+      //- Comments vi phạm (cần quyền comments_moderate)
+      if(role && role.permission && role.permission.includes("comments_moderate"))  
+        li
+          a(href=`/${prefixAdmin}/comments/violations`) Comments vi phạm 
+      
+      //- Quản lý đơn hàng (cần quyền order_manage)
+      if(role && role.permission && role.permission.includes("order_manage"))
+        li
+          a(href=`/${prefixAdmin}/order`) Quản lý đơn hàng
+      //- Chat hỗ trợ (cần quyền chat_use)
+      if(role && role.permission && role.permission.includes("chat_use"))  
+        li
+          a(href=`/${prefixAdmin}/chat/support`) 
+            i.fas.fa-headset.mr-1
+            | Hỗ trợ khách hàng
+      
+      //- Bán hàng quét mã (cần quyền sales_qr_scan)
+      if(role && role.permission && role.permission.includes("sales_qr_scan"))  
+        li
+          a(href=`/${prefixAdmin}/pos`) Bán hàng (Quét mã)
+      
+      //- Cài đặt chung (luôn hiển thị cho admin)
+      li
+        a(href=`/${prefixAdmin}/settings/general`) Cài đặt chung

@@ -1,0 +1,44 @@
+extends ../../layouts/default.pug
+
+block main
+  h2 Chi tiết đơn hàng
+  if order
+    ul.list-group.mb-3
+      li.list-group-item
+        strong Mã đơn:
+        |  #{order._id}
+      li.list-group-item
+        strong Khách hàng:
+        |  #{order.userInfo && order.userInfo.name ? order.userInfo.name : 'Ẩn'}
+      li.list-group-item
+        strong Số điện thoại:
+        |  #{order.userInfo && order.userInfo.phone ? order.userInfo.phone : 'Ẩn'}
+      li.list-group-item
+        strong Địa chỉ:
+        |  #{order.userInfo && order.userInfo.address ? order.userInfo.address : 'Ẩn'}
+      li.list-group-item
+        strong Tổng tiền:
+        |  #{order.totalAmount.toLocaleString()}
+      li.list-group-item
+        strong Trạng thái:
+        |  #{order.status}
+      li.list-group-item
+        strong Ngày tạo:
+        |  #{order.createdAt ? order.createdAt.toLocaleString() : ''}
+    h4 Sản phẩm
+    table.table.table-bordered
+      thead
+        tr
+          th Tên
+          th Giá
+          th Số lượng
+          th Thành tiền
+      tbody
+        each p in order.products
+          tr
+            td= p.title
+            td= p.price.toLocaleString()
+            td= p.quantity
+            td= (p.price * p.quantity).toLocaleString()
+  else
+    p Không tìm thấy đơn hàng.
